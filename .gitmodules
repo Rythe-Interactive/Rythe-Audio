@@ -1,0 +1,6 @@
+[submodule "third_party/openal-soft"]
+	path = third_party/openal-soft
+	url = https://github.com/kcat/openal-soft.git
+[submodule "third_party/minimp3"]
+	path = third_party/minimp3
+	url = https://github.com/lieff/minimp3.git
