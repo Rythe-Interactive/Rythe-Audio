@@ -6,7 +6,7 @@
 #endif
 #include <audio/systems/audiosystem.hpp>
 
-namespace legion::audio
+namespace rythe::audio
 {
     common::result<audio_segment, fs_error> mp3_audio_loader::load(const fs::basic_resource& resource, audio_import_settings&& settings)
     {
@@ -20,10 +20,10 @@ namespace legion::audio
 
         if (mp3dec_load_mapinfo(&mp3dec, &map_info, &fileInfo, NULL, NULL))
         {
-            return legion_fs_error("Failed to load audio file");
+            return rythe_fs_error("Failed to load audio file");
         }
 
-        byte* audioData;
+        rsl::byte* audioData;
 
         // bitsPerSample is always 16 for mp3
         int dataSize = fileInfo.samples * sizeof(int16);
@@ -32,18 +32,18 @@ namespace legion::audio
 
         if (settings.channel_processing == audio_import_settings::channel_processing_setting::force_mono)
         {
-            audioData = detail::convertToMono(reinterpret_cast<byte*>(fileInfo.buffer), dataSize, dataSize, channels, 16);
+            audioData = detail::convertToMono(reinterpret_cast<rsl::byte*>(fileInfo.buffer), dataSize, dataSize, channels, 16);
             samples /= channels;
         }
         else
         {
-            audioData = new byte[dataSize];
+            audioData = new rsl::byte[dataSize];
             memmove(audioData, fileInfo.buffer, dataSize);
         }
         free(fileInfo.buffer);
 
         audio_segment as(
-            audioData, // fileInfo.samples is int16, therefore byte requires twice as much
+            audioData, // fileInfo.samples is int16, therefore rsl::byte requires twice as much
             0,
             samples,
             channels,
@@ -82,7 +82,7 @@ namespace legion::audio
             header.chunckId[3] != 'F')
         {
             log::error("Found WAV header: '{}', exptected: 'RIFF'", (char)header.chunckId[0], (char)header.chunckId[1], (char)header.chunckId[2], (char)header.chunckId[3]);
-            return legion_fs_error("WAV File invalid header, exptected RIFF");
+            return rythe_fs_error("WAV File invalid header, exptected RIFF");
         }
 
         if (header.format[0] != 'W' ||
@@ -91,7 +91,7 @@ namespace legion::audio
             header.format[3] != 'E')
         {
             log::error("Found WAV format: '{}{}{}{}', exptected: 'WAVE'", (char)header.format[0], (char)header.format[1], (char)header.format[2], (char)header.format[3]);
-            return legion_fs_error("Loaded File is not of type WAV");
+            return rythe_fs_error("Loaded File is not of type WAV");
         }
 
         if (header.wave_format.subChunckId[0] != 'f' ||
@@ -100,7 +100,7 @@ namespace legion::audio
             header.wave_format.subChunckId[3] != ' ')
         {
             log::error("Found WAV format sub chunck ID: '{}{}{}{}', exptected: 'fmt '", (char)header.wave_format.subChunckId[0], (char)header.wave_format.subChunckId[1], (char)header.wave_format.subChunckId[2], (char)header.wave_format.subChunckId[3]);
-            return legion_fs_error("WAV File sub chunck id was not (fmt )");
+            return rythe_fs_error("WAV File sub chunck id was not (fmt )");
         }
 
         memcpy(&waveData, resource.data() + sizeof(header), sizeof(waveData));
@@ -110,7 +110,7 @@ namespace legion::audio
             waveData.subChunckId[3] != 'a')
         {
             log::error("Found WAV data sub chunck ID: '{}{}{}{}', exptected: 'data'", (char)waveData.subChunckId[0], (char)waveData.subChunckId[1], (char)waveData.subChunckId[2], (char)waveData.subChunckId[3]);
-            return legion_fs_error("WAV File sample data does not start with word (data)");
+            return rythe_fs_error("WAV File sample data does not start with word (data)");
         }
 
         assert_msg("Audio file channels were 0", header.wave_format.channels != 0);
@@ -118,7 +118,7 @@ namespace legion::audio
         uint metaSize = sizeof(header) + sizeof(waveData);
 
         int sampleDataSize = resource.size() - metaSize;
-        byte* audioData;
+        rsl::byte* audioData;
 
         int channels = header.wave_format.channels;
 
@@ -130,7 +130,7 @@ namespace legion::audio
 
             sampleDataSize /= channels;
 
-            audioData = new byte[sampleDataSize];
+            audioData = new rsl::byte[sampleDataSize];
             memmove(audioData, channelData.dataPerChannel[0].data(), sampleDataSize);
             //audioData = channelData.dataPerChannel[0].data();
 
@@ -152,7 +152,7 @@ namespace legion::audio
             {
                 for (int i = 1; i < channels; ++i)
                 {
-                    byte* data = new byte[sampleDataSize];
+                    rsl::byte* data = new rsl::byte[sampleDataSize];
                     memmove(data, channelData.dataPerChannel[i].data(), sampleDataSize);
 
                     audio_segment* channel_segment = new audio_segment(
@@ -188,7 +188,7 @@ namespace legion::audio
         }
         else
         {
-            audioData = new byte[sampleDataSize];
+            audioData = new rsl::byte[sampleDataSize];
             memcpy(audioData, resource.data() + metaSize, sampleDataSize);
 
             as = audio_segment(
@@ -209,7 +209,7 @@ namespace legion::audio
 
     namespace detail
     {
-        void convertToMono(const byte* inputData, int dataSize, byte* monoData, int channels, int bitsPerSample)
+        void convertToMono(const rsl::byte* inputData, int dataSize, rsl::byte* monoData, int channels, int bitsPerSample)
         {
             assert_msg("0 was passed for channels", channels != 0);
             if (channels == 1)
@@ -264,10 +264,10 @@ namespace legion::audio
             }
         }
 
-        byte* convertToMono(const byte* inputData, int dataSize, int& monoSize, int& channels, int bitsPerSample)
+        rsl::byte* convertToMono(const rsl::byte* inputData, int dataSize, int& monoSize, int& channels, int bitsPerSample)
         {
             monoSize = dataSize / channels;
-            byte* monoData = new byte[monoSize];
+            rsl::byte* monoData = new rsl::byte[monoSize];
             if (channels == 1)
             {
                 memcpy(monoData, inputData, monoSize);
@@ -278,7 +278,7 @@ namespace legion::audio
             return monoData;
         }
 
-        channel_data extractChannels(const byte* inputData, int dataSize, int channels, int bitsPerSamples)
+        channel_data extractChannels(const rsl::byte* inputData, int dataSize, int channels, int bitsPerSamples)
         {
             assert_msg("0 was passed for channels", channels != 0);
             // channelData is a 2D array of [channels][channelData]
@@ -295,7 +295,7 @@ namespace legion::audio
 
             int bytesPerSample = bitsPerSamples / 8;
 
-            for (size_type c = 0; c < channels; ++c)
+            for (rsl::size_type c = 0; c < channels; ++c)
             {
                 channelData.dataPerChannel[c].resize(dataSize/channels);
             }
@@ -305,9 +305,9 @@ namespace legion::audio
             case 1:
             {
                 uint j = 0;
-                for (size_type i = 0; i < dataSize; i += bytesPerSample * channels)
+                for (rsl::size_type i = 0; i < dataSize; i += bytesPerSample * channels)
                 {
-                    for (size_type c = 0; c < channels; ++c)
+                    for (rsl::size_type c = 0; c < channels; ++c)
                     {
                         channelData.dataPerChannel[c][j] = inputData[i + c];
                     }
@@ -319,9 +319,9 @@ namespace legion::audio
             {
                 uint j = 0;
                 int16 data = 0;
-                for (size_type i = 0; i < dataSize; i += bytesPerSample * channels)
+                for (rsl::size_type i = 0; i < dataSize; i += bytesPerSample * channels)
                 {
-                    for (size_type c = 0; c < channels; ++c)
+                    for (rsl::size_type c = 0; c < channels; ++c)
                     {
                         data = *reinterpret_cast<const int16*>(inputData + i + (c*bytesPerSample));
                         *reinterpret_cast<int16*>(channelData.dataPerChannel[c].data()+j) = data;
@@ -334,9 +334,9 @@ namespace legion::audio
             {
                 uint j = 0;
                 float data = 0;
-                for (size_type i = 0; i < dataSize; i += bytesPerSample * channels)
+                for (rsl::size_type i = 0; i < dataSize; i += bytesPerSample * channels)
                 {
-                    for (size_type c = 0; c < channels; ++c)
+                    for (rsl::size_type c = 0; c < channels; ++c)
                     {
                         data = *reinterpret_cast<const float*>(inputData + i + (c * bytesPerSample));
                         *reinterpret_cast<float*>(channelData.dataPerChannel[c].data() + j) = data;
@@ -374,7 +374,7 @@ namespace legion::audio
             return AL_FORMAT_STEREO16;
         }
 
-        void createAndBufferAudioData(ALuint* bufferId, int channels, int bitsPerSample, byte* data, int dataSize, int sampleRate)
+        void createAndBufferAudioData(ALuint* bufferId, int channels, int bitsPerSample, rsl::byte* data, int dataSize, int sampleRate)
         {
             std::lock_guard guard(AudioSystem::contextLock);
             alcMakeContextCurrent(AudioSystem::alcContext);

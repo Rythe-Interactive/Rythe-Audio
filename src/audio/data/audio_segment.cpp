@@ -1,13 +1,13 @@
 #include <audio/data/audio_segment.hpp>
 #include <audio/systems/audiosystem.hpp>
 
-namespace legion::audio
+namespace rythe::audio
 {
     std::unordered_map<id_type, uint> audio_segment::m_refs;
     std::mutex audio_segment::m_refsLock;
     id_type audio_segment::m_lastId = 1;
 
-    audio_segment::audio_segment(byte* data, ALuint bufferId, size_type samples, int channels, int sampleRate, int layer, int avg_bitRate) :
+    audio_segment::audio_segment(rsl::byte* data, ALuint bufferId, rsl::size_type samples, int channels, int sampleRate, int layer, int avg_bitRate) :
         audioBufferId(bufferId), samples(samples), channels(channels), sampleRate(sampleRate), layer(layer), avg_bitrate_kbps(avg_bitRate)
     {
         std::lock_guard guard(m_refsLock);

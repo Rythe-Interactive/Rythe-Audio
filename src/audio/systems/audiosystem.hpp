@@ -14,14 +14,14 @@
  * @file audiosystem.hpp
  */
 
-namespace legion::audio
+namespace rythe::audio
 {
 
     inline void openal_error()
     {
         ALCenum error;
         while ((error = alGetError()) != AL_NO_ERROR)
-            legion::log::warn("ERROR: OpenAl error: {}", error);
+            rythe::log::warn("ERROR: OpenAl error: {}", error);
     }
 
     /**@class AudioSystem
@@ -60,7 +60,7 @@ namespace legion::audio
         */
         void onAudioListenerComponentDestroy(events::component_destruction<audio_listener>& event);
 
-        void update(time::span deltatime);
+        void update(rsl::span deltatime);
 
         static void setDistanceModel(ALenum distanceModel);
 

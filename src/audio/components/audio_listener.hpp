@@ -1,7 +1,7 @@
 #pragma once
 #include <core/core.hpp>
 
-namespace legion::audio
+namespace rythe::audio
 {
     struct audio_listener
     {

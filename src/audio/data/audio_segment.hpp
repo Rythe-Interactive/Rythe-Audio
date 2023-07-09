@@ -5,20 +5,20 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 #endif
-namespace legion::audio
+namespace rythe::audio
 {
     struct audio_segment
     {
     public:
         ALuint audioBufferId;
 
-        /* Channels included, byte size = samples*sizeof(int16) */
-        size_type samples; 
+        /* Channels included, rsl::byte size = samples*sizeof(int16) */
+        rsl::size_type samples; 
         int channels, sampleRate, layer, avg_bitrate_kbps;
 
         audio_segment() = default;
 
-        audio_segment(byte* data, ALuint bufferId, size_type samples, int channels, int sampleRate, int layer, int avg_bitRate);
+        audio_segment(rsl::byte* data, ALuint bufferId, rsl::size_type samples, int channels, int sampleRate, int layer, int avg_bitRate);
 
         audio_segment(const audio_segment& other);
 
@@ -31,13 +31,13 @@ namespace legion::audio
         ~audio_segment();
 
         // Read-Write
-        byte* getData()
+        rsl::byte* getData()
         {
             return m_data;
         }
 
         // Read only
-        const byte* getData() const
+        const rsl::byte* getData() const
         {
             return m_data;
         }
@@ -64,7 +64,7 @@ namespace legion::audio
         static std::mutex m_refsLock;
         static id_type m_lastId;
         id_type m_id;
-        byte* m_data;
+        rsl::byte* m_data;
 
         audio_segment* m_next = nullptr;
     };

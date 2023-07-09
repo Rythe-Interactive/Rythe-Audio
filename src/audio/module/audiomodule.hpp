@@ -5,7 +5,7 @@
 #include <audio/components/audio_listener.hpp>
 #include <audio/data/importers/audio_importers.hpp>
 
-namespace legion::audio
+namespace rythe::audio
 {
     class AudioModule : public Module
     {

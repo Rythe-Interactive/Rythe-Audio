@@ -2,7 +2,7 @@
 
 #include <audio/systems/audiosystem.hpp>
 
-namespace legion::audio
+namespace rythe::audio
 {
     async::spinlock AudioSystem::contextLock;
     ALCdevice* AudioSystem::alDevice = nullptr;
@@ -97,9 +97,9 @@ namespace legion::audio
         // This function is called from setup()
         // In setup everything is still single threaded and therefore no lock is required
 
-        cstring vendor = alGetString(AL_VENDOR);
-        cstring version = alGetString(AL_VERSION);
-        cstring renderer = alGetString(AL_RENDERER);
+        rsl::cstring vendor = alGetString(AL_VENDOR);
+        rsl::cstring version = alGetString(AL_VERSION);
+        rsl::cstring renderer = alGetString(AL_RENDERER);
         std::string openALExtensions = alGetString(AL_EXTENSIONS);
         std::regex match(" ");
         openALExtensions = std::regex_replace(openALExtensions, match, "\n\t\t");
@@ -163,7 +163,7 @@ namespace legion::audio
             vendor, version, renderer, srate, frequency, refresh, sync, monoSources, stereoSources, maxAux, openALExtensions, ALCExtensions);
     }
 
-    void AudioSystem::update(time::span deltatime)
+    void AudioSystem::update(rsl::span deltatime)
     {
         std::lock_guard guard(contextLock);
         alcMakeContextCurrent(alcContext);
@@ -180,7 +180,7 @@ namespace legion::audio
 
             const position& p = entity.get_component<position>();
             position& previousP = m_sourcePositions.at(sourceHandle);
-            const math::vec3 vel = previousP - p;
+            const rsl::math::float3 vel = previousP - p;
             previousP = p;
             alSource3f(source.m_sourceId, AL_POSITION, p.x, p.y, p.z);
             alSource3f(source.m_sourceId, AL_VELOCITY, vel.x, vel.y, vel.z);
@@ -287,7 +287,7 @@ namespace legion::audio
 
             setListener(p, r);
 
-            math::vec3 vel = m_listenerPosition - p;
+            rsl::math::float3 vel = m_listenerPosition - p;
             m_listenerPosition = p;
             alListener3f(AL_VELOCITY, vel.x, vel.y, vel.z);
         }
@@ -376,7 +376,7 @@ namespace legion::audio
 
     void AudioSystem::initSource(audio_source& source)
     {
-        static size_type i = 0;
+        static rsl::size_type i = 0;
         if (++i >= monoSources)
         {
             source.m_sourceId = audio_source::invalid_source_id;
@@ -456,8 +456,8 @@ namespace legion::audio
         //rotation
         math::mat3 mat3 = math::toMat3(r);
         // Invert z axis here for left-right hand coord system conversion
-        math::vec3 forward = mat3 * math::vec3(0.f, 0.f, -1.f);
-        math::vec3 up = mat3 * math::vec3(0.f, 1.f, 0.f);
+        rsl::math::float3 forward = mat3 * rsl::math::float3(0.f, 0.f, -1.f);
+        rsl::math::float3 up = mat3 * rsl::math::float3(0.f, 1.f, 0.f);
         ALfloat ori[] = { forward.x, forward.y, forward.z, up.x, up.y, up.z };
         alListenerfv(AL_ORIENTATION, ori);
         alcMakeContextCurrent(nullptr);

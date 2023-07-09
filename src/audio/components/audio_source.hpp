@@ -5,7 +5,7 @@
 #endif
 #include <audio/data/audio_segment.hpp>
 
-namespace legion::audio
+namespace rythe::audio
 {
     struct audio_source
     {
@@ -47,7 +47,7 @@ namespace legion::audio
         void setPitch(float pitch) noexcept
         {
             m_changes |= sound_properties::pitch; // set b0
-            m_pitch = legion::math::max(0.0f, pitch);
+            m_pitch = rythe::math::max(0.0f, pitch);
         }
         /**
          * @brief Function to get the current pitch
@@ -78,7 +78,7 @@ namespace legion::audio
         void setGain(float gain) noexcept
         {
             m_changes |= sound_properties::gain; // set b1
-            m_gain = legion::math::max(0.0f, gain);
+            m_gain = rythe::math::max(0.0f, gain);
         }
         /**
          * @brief Function to get the current gain
@@ -277,7 +277,7 @@ namespace legion::audio
 
         float m_rolloffFactor;
 
-        // Byte to keep track of changes made to audio source
+        // rsl::byte to keep track of changes made to audio source
         // For all the values > see enum sound_properties
         // b0 - pitch
         // b1 - gain
@@ -285,6 +285,6 @@ namespace legion::audio
         // b3 - rewind (doRewind)
         // b4 - audio handle
         // b5 - roll off factor 3D
-        byte m_changes = 0;
+        rsl::byte m_changes = 0;
     };
 }

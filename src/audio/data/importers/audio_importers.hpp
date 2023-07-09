@@ -3,7 +3,7 @@
 #include <audio/data/audio_segment.hpp>
 #include <vector>
 
-namespace legion::audio
+namespace rythe::audio
 {
     namespace detail
     {
@@ -16,45 +16,45 @@ namespace legion::audio
             }
 
             int channels;
-            std::vector<byte_vec> dataPerChannel;
+            std::vector<rsl::byte_vec> dataPerChannel;
 
-            byte* getLeft()
+            rsl::byte* getLeft()
             {
                 return getChannelData(0);
             }
 
-            byte* getRight()
+            rsl::byte* getRight()
             {
                 return getChannelData(1);
             }
 
-            byte* getCenter()
+            rsl::byte* getCenter()
             {
                 return getChannelData(2);
             }
 
-            byte* getLeftRear()
+            rsl::byte* getLeftRear()
             {
                 return getChannelData(3);
             }
 
-            byte* getRightRear()
+            rsl::byte* getRightRear()
             {
                 return getChannelData(4);
             }
 
-            byte* getChannelData(size_type index)
+            rsl::byte* getChannelData(rsl::size_type index)
             {
                 if (channels < index) return nullptr;
                 return dataPerChannel[index].data();
             }
 
-            byte* operator [] (size_type index)
+            rsl::byte* operator [] (rsl::size_type index)
             {
                 return dataPerChannel[index].data();
             }
 
-            const byte* operator [] (size_type index) const
+            const rsl::byte* operator [] (rsl::size_type index) const
             {
                 return dataPerChannel[index].data();
             }
@@ -68,14 +68,14 @@ namespace legion::audio
         * @brief channels is the channelCount or amount of channels
         * @brief bitsPerSample is the audio resolution (16 bit for mp3, and usually 16 bit for wav)
         */
-        void convertToMono(const byte* inputData, int dataSize, byte* monoData, int channels, int bitsPerSample);
-        byte* convertToMono(const byte* inputData, int dataSize, int& monoDataSize, int& channels, int bitsPerSample);
+        void convertToMono(const rsl::byte* inputData, int dataSize, rsl::byte* monoData, int channels, int bitsPerSample);
+        rsl::byte* convertToMono(const rsl::byte* inputData, int dataSize, int& monoDataSize, int& channels, int bitsPerSample);
 
-        channel_data extractChannels(const byte* inputData, int dataSize, int channels, int bitsPerSamples);
+        channel_data extractChannels(const rsl::byte* inputData, int dataSize, int channels, int bitsPerSamples);
 
         ALenum getAudioFormat(int channels, int bitsPerSample);
 
-        void createAndBufferAudioData(ALuint* bufferId, int channels, int bitsPerSample, byte* data, int dataSize, int sampleRate);
+        void createAndBufferAudioData(ALuint* bufferId, int channels, int bitsPerSample, rsl::byte* data, int dataSize, int sampleRate);
     }
 
     struct mp3_audio_loader : public fs::resource_converter<audio_segment, audio_import_settings>
