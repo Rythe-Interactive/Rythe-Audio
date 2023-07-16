@@ -132,7 +132,7 @@ namespace rythe::audio
         std::string nameForHash = name;
         if (settings.channel_processing == audio_import_settings::channel_processing_setting::split_channels) nameForHash = name + "_channel0";
         log::debug("Name: {}", nameForHash);
-        id_type id = nameHash(nameForHash);
+        id_type id = rsl::nameHash(nameForHash);
         {
             async::readonly_guard guard(m_segmentsLock);
             // check if segment has been loaded before
@@ -179,7 +179,7 @@ namespace rythe::audio
 
     void AudioSegmentCache::createAudioSegment(const std::string& name, audio_segment* segment)
     {
-        id_type id = nameHash(name);
+        id_type id = rsl::nameHash(name);
         {
             async::readonly_guard guard(m_segmentsLock);
             // check if segment has been loaded before
@@ -194,7 +194,7 @@ namespace rythe::audio
 
     audio_segment_handle AudioSegmentCache::getAudioSegment(const std::string& name)
     {
-        id_type id = nameHash(name);
+        id_type id = rsl::nameHash(name);
         {
             async::readonly_guard guard(m_segmentsLock);
             // check if segment has been loaded before

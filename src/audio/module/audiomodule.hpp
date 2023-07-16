@@ -20,7 +20,7 @@ namespace rythe::audio
             reportSystem<AudioSystem>();
         }
 
-        virtual priority_type priority() override
+        virtual rsl::priority_type priority() override
         {
             return 50;
         }
