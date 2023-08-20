@@ -21,9 +21,10 @@ DEALINGS IN THE SOFTWARE.
 
 ]]--
 
-include "../core/include-core.lua"
-
-includedirs { "../" }
-dependson { "legion-audio" }
+print("including audio")
+includedirs {"$(SolutionDir)rythe\\engine\\audio\\src","rythe\\engine\\audio\\third_party\\*"}
+dependson { "audio" }
 filter "kind:not StaticLib"
-    links { "legion-audio", "openal" }
+    links { "audio", "openal" }
+
+dofile  "rythe/engine/core/include-core.lua"

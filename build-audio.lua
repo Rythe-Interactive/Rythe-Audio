@@ -21,15 +21,24 @@ DEALINGS IN THE SOFTWARE.
 
 ]]--
 
-group "engine"
-project "audio"
-    kind "StaticLib"
-    language "C++"
-    cppdialect "C++20"
-    includedirs { "../","../../third_party/"}
-    defines { "RYTHE_INTERNAL", "PROJECT_NAME=audio" }
+createProject("engine","audio","StaticLib")
+includedirs {
+    "include",
+    "include/*",
+    "include/*/src/",
+    "third_party/",
+    "third_party/*",
+    "third_party/*/src/",
+    "third_party/*/include/",
+    "src"
+}     
 
-    files {"**.h", "**.hpp" ,"**.inl","**.c", "**.cpp"}
+files {
+     "src/%{prj.name}/**.h",
+     "src/%{prj.name}/**.hpp",
+     "src/%{prj.name}/**.inl",
+     "src/%{prj.name}/**.c",
+     "src/%{prj.name}/**.cpp"
+}
 
-    include "../../../core/src/core/include-core.lua"
-group ""
+dofile "rythe/engine/core/include-core.lua"
