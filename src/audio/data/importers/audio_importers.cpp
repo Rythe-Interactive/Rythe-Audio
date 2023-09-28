@@ -113,7 +113,7 @@ namespace legion::audio
             return legion_fs_error("WAV File sample data does not start with word (data)");
         }
 
-        assert_msg("Audio file channels were 0", header.wave_format.channels != 0);
+        rsl_assert_msg("Audio file channels were 0", header.wave_format.channels != 0);
 
         uint metaSize = sizeof(header) + sizeof(waveData);
 
@@ -211,7 +211,7 @@ namespace legion::audio
     {
         void convertToMono(const byte* inputData, int dataSize, byte* monoData, int channels, int bitsPerSample)
         {
-            assert_msg("0 was passed for channels", channels != 0);
+            rsl_assert_msg("0 was passed for channels", channels != 0);
             if (channels == 1)
             {
                 memcpy(monoData, inputData, dataSize);
@@ -280,7 +280,7 @@ namespace legion::audio
 
         channel_data extractChannels(const byte* inputData, int dataSize, int channels, int bitsPerSamples)
         {
-            assert_msg("0 was passed for channels", channels != 0);
+            rsl_assert_msg("0 was passed for channels", channels != 0);
             // channelData is a 2D array of [channels][channelData]
             // channelData will hold the audio data per channel
             channel_data channelData(channels);
