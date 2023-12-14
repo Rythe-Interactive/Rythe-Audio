@@ -1,7 +1,8 @@
 local project = {
     dependencies = {
         "public rythe/core"
-    }
+    },
+    defines = { "RYTHE_INTERNAL" }
 }
 
 return project
