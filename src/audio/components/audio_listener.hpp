@@ -3,7 +3,7 @@
 
 namespace rythe::audio
 {
-    struct audio_listener
-    {
-    };
-}
+	struct audio_listener
+	{
+	};
+} // namespace rythe::audio
