@@ -5,7 +5,7 @@
 
 namespace rythe::audio
 {
-	namespace detail
+	namespace internal
 	{
 		struct channel_data
 		{
@@ -17,66 +17,52 @@ namespace rythe::audio
 			int channels;
 			std::vector<rsl::byte_vec> dataPerChannel;
 
-			rsl::byte* getLeft()
-			{
-				return getChannelData(0);
-			}
+			rsl::byte* getLeft() { return getChannelData(0); }
 
-			rsl::byte* getRight()
-			{
-				return getChannelData(1);
-			}
+			rsl::byte* getRight() { return getChannelData(1); }
 
-			rsl::byte* getCenter()
-			{
-				return getChannelData(2);
-			}
+			rsl::byte* getCenter() { return getChannelData(2); }
 
-			rsl::byte* getLeftRear()
-			{
-				return getChannelData(3);
-			}
+			rsl::byte* getLeftRear() { return getChannelData(3); }
 
-			rsl::byte* getRightRear()
-			{
-				return getChannelData(4);
-			}
+			rsl::byte* getRightRear() { return getChannelData(4); }
 
 			rsl::byte* getChannelData(rsl::size_type index)
 			{
 				if (channels < index)
+				{
 					return nullptr;
+				}
 				return dataPerChannel[index].data();
 			}
 
-			rsl::byte* operator[](rsl::size_type index)
-			{
-				return dataPerChannel[index].data();
-			}
+			rsl::byte* operator[](rsl::size_type index) { return dataPerChannel[index].data(); }
 
-			const rsl::byte* operator[](rsl::size_type index) const
-			{
-				return dataPerChannel[index].data();
-			}
+			const rsl::byte* operator[](rsl::size_type index) const { return dataPerChannel[index].data(); }
 		};
 
 		/**
 		 * @brief function to convert audio data to mono audio data
 		 * @brief inputData is unedited audio data,
 		 * @brief dataSize is the complete audio data size,
-		 * @brief monoData is the out mono data, monoData is assumed to be resized with the correct size (dataSize/channelCount)
+		 * @brief monoData is the out mono data, monoData is assumed to be resized with the correct size
+		 * (dataSize/channelCount)
 		 * @brief channels is the channelCount or amount of channels
 		 * @brief bitsPerSample is the audio resolution (16 bit for mp3, and usually 16 bit for wav)
 		 */
-		void convertToMono(const rsl::byte* inputData, int dataSize, rsl::byte* monoData, int channels, int bitsPerSample);
-		rsl::byte* convertToMono(const rsl::byte* inputData, int dataSize, int& monoDataSize, int& channels, int bitsPerSample);
+		void
+		convertToMono(const rsl::byte* inputData, int dataSize, rsl::byte* monoData, int channels, int bitsPerSample);
+		rsl::byte*
+		convertToMono(const rsl::byte* inputData, int dataSize, int& monoDataSize, int& channels, int bitsPerSample);
 
 		channel_data extractChannels(const rsl::byte* inputData, int dataSize, int channels, int bitsPerSamples);
 
 		ALenum getAudioFormat(int channels, int bitsPerSample);
 
-		void createAndBufferAudioData(ALuint* bufferId, int channels, int bitsPerSample, rsl::byte* data, int dataSize, int sampleRate);
-	} // namespace detail
+		void createAndBufferAudioData(
+			ALuint* bufferId, int channels, int bitsPerSample, rsl::byte* data, int dataSize, int sampleRate
+		);
+	} // namespace internal
 
 	struct mp3_audio_loader : public fs::resource_converter<audio_segment, audio_import_settings>
 	{
@@ -84,7 +70,8 @@ namespace rythe::audio
 		{
 			return load(resource, audio_import_settings(default_audio_import_settings));
 		}
-		virtual common::result<audio_segment, fs_error> load(const fs::basic_resource& resource, audio_import_settings&& settings) override;
+		virtual common::result<audio_segment, fs_error>
+		load(const fs::basic_resource& resource, audio_import_settings&& settings) override;
 	};
 
 	struct wav_audio_loader : public fs::resource_converter<audio_segment, audio_import_settings>
@@ -94,7 +81,8 @@ namespace rythe::audio
 		{
 			return load(resource, audio_import_settings(default_audio_import_settings));
 		}
-		virtual common::result<audio_segment, fs_error> load(const fs::basic_resource& resource, audio_import_settings&& settings) override;
+		virtual common::result<audio_segment, fs_error>
+		load(const fs::basic_resource& resource, audio_import_settings&& settings) override;
 
 		struct RIFF_Header     // 36 Bytes of data for WAV header
 		{

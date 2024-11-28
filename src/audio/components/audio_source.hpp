@@ -100,19 +100,13 @@ namespace rythe::audio
 		 * @brief Function to disable spatial (3D)
 		 * Calls setRollOffFactor(0.0f)
 		 */
-		void disableSpatialAudio() noexcept
-		{
-			setRollOffFactor(0.0f);
-		}
+		void disableSpatialAudio() noexcept { setRollOffFactor(0.0f); }
 
 		/**
 		 * @brief Function to enable spatial (3D)
 		 * Calls setRollOffFactor(1.0f)
 		 */
-		void enableSpatialAudio() noexcept
-		{
-			setRollOffFactor(1.0f);
-		}
+		void enableSpatialAudio() noexcept { setRollOffFactor(1.0f); }
 
 		/**
 		 * @brief Plays audio
@@ -121,7 +115,9 @@ namespace rythe::audio
 		{
 			// If the file is already playing or if the file will be played on next update > return
 			if (m_nextPlayState == playstate::playing)
+			{
 				return;
+			}
 			m_changes |= sound_properties::playState;
 			m_nextPlayState = playstate::playing;
 			// Do not set playstate to playing - audiosystem will set it accordingly
@@ -134,7 +130,9 @@ namespace rythe::audio
 		{
 			// If the file is already playing or if the file will be played on next update > return
 			if (m_nextPlayState == playstate::paused)
+			{
 				return;
+			}
 			m_changes |= sound_properties::playState;
 			m_nextPlayState = playstate::paused;
 			// Do not set playstate to paused - audiosystem will set it accordingly
@@ -148,7 +146,9 @@ namespace rythe::audio
 		{
 			// If the file is already playing or if the file will be played on next update > return
 			if (m_nextPlayState == playstate::stopped)
+			{
 				return;
+			}
 			m_changes |= sound_properties::playState;
 			m_nextPlayState = playstate::stopped;
 			// Do not set playstate to stopped - audiosystem will set it accordingly
@@ -158,33 +158,26 @@ namespace rythe::audio
 		 * @brief Returns whether the audio is playing
 		 * If false the audio can be paused (isPaused()) or stopped (isStopped())
 		 */
-		bool isPlaying() const noexcept
-		{
-			return m_playState == playstate::playing;
-		}
+		bool isPlaying() const noexcept { return m_playState == playstate::playing; }
 
 		/**
 		 * @brief Returns whether the audio is paused
 		 * If false the audio can be playing (isPlaying()) or stopped (isStopped())
 		 */
-		bool isPaused() const noexcept
-		{
-			return m_playState == playstate::paused;
-		}
+		bool isPaused() const noexcept { return m_playState == playstate::paused; }
 
 		/**
 		 * @brief Returns whether the audio is stopped
 		 *  If false the audio can be playing (isPlaying()) or paused (isPaused())
 		 */
-		bool isStopped() const noexcept
-		{
-			return m_playState == playstate::stopped;
-		}
+		bool isStopped() const noexcept { return m_playState == playstate::stopped; }
 
 		void setAudioHandle(audio_segment_handle handle) noexcept
 		{
 			if (handle == m_audio_handle)
+			{
 				return;
+			}
 			m_changes |= sound_properties::audioHandle;
 			m_audio_handle = handle;
 		}
@@ -194,15 +187,9 @@ namespace rythe::audio
 		 * If the audio is playing it will stop/pause
 		 * If the audio was playing the audio source needs to be stopped or paused before it can play
 		 */
-		void rewind() noexcept
-		{
-			m_changes |= sound_properties::doRewind;
-		}
+		void rewind() noexcept { m_changes |= sound_properties::doRewind; }
 
-		audio_segment_handle getAudioHandle() const noexcept
-		{
-			return m_audio_handle;
-		}
+		audio_segment_handle getAudioHandle() const noexcept { return m_audio_handle; }
 
 		/**
 		 * @brief Gets the amount of channels in this audio source
@@ -216,17 +203,11 @@ namespace rythe::audio
 		/**
 		 * @brief Returns whether the audio-source is stereo (channels=2)
 		 */
-		bool isStereo() const noexcept
-		{
-			return getChannels() == 2;
-		}
+		bool isStereo() const noexcept { return getChannels() == 2; }
 		/**
 		 * @brief Returns whether the audio-source is mono (channels=1)
 		 */
-		bool isMono() const noexcept
-		{
-			return getChannels() == 1;
-		}
+		bool isMono() const noexcept { return getChannels() == 1; }
 
 		/**
 		 * @brief Sets the looping state of the audio-source (true=looping)
@@ -243,19 +224,13 @@ namespace rythe::audio
 		/**
 		 * @brief Gets the looping state of the audio-source (true=looping)
 		 */
-		bool isLooping() const noexcept
-		{
-			return m_looping;
-		}
+		bool isLooping() const noexcept { return m_looping; }
 
 
 		/**
 		 * @brief Helper to implicitly convert to OpenAL source
 		 */
-		operator ALuint() const
-		{
-			return m_sourceId;
-		}
+		operator ALuint() const { return m_sourceId; }
 
 	private:
 		/**

@@ -7,7 +7,10 @@ namespace rythe::audio
 	std::mutex audio_segment::m_refsLock;
 	id_type audio_segment::m_lastId = 1;
 
-	audio_segment::audio_segment(rsl::byte* data, ALuint bufferId, rsl::size_type samples, int channels, int sampleRate, int layer, int avg_bitRate)
+	audio_segment::audio_segment(
+		rsl::byte* data, ALuint bufferId, rsl::size_type samples, int channels, int sampleRate, int layer,
+		int avg_bitRate
+	)
 		: audioBufferId(bufferId),
 		  samples(samples),
 		  channels(channels),
@@ -148,18 +151,23 @@ namespace rythe::audio
 		}
 	}
 
-	audio_segment_handle AudioSegmentCache::createAudioSegment(const std::string& name, const fs::view& file, audio_import_settings settings)
+	audio_segment_handle
+	AudioSegmentCache::createAudioSegment(const std::string& name, const fs::view& file, audio_import_settings settings)
 	{
 		std::string nameForHash = name;
 		if (settings.channel_processing == audio_import_settings::channel_processing_setting::split_channels)
+		{
 			nameForHash = name + "_channel0";
+		}
 		log::debug("Name: {}", nameForHash);
 		id_type id = rsl::nameHash(nameForHash);
 		{
 			async::readonly_guard guard(m_segmentsLock);
 			// check if segment has been loaded before
 			if (m_segments.count(id))
+			{
 				return {id};
+			}
 		}
 
 		// Segment is loaded for the first time
@@ -167,7 +175,9 @@ namespace rythe::audio
 		if (result != common::valid)
 		{
 			// log::error("Audio file wrong!");
-			log::error("Error while loading file: {}, {}", static_cast<std::string>(file.get_filename()), result.error());
+			log::error(
+				"Error while loading file: {}, {}", static_cast<std::string>(file.get_filename()), result.error()
+			);
 			return invalid_audio_segment_handle;
 		}
 
@@ -193,7 +203,9 @@ namespace rythe::audio
 
 			auto* pairPointer = new std::pair<async::rw_spinlock, audio_segment>();
 			pairPointer->second = static_cast<audio_segment>(result);
-			m_segments.emplace(std::make_pair(id, std::unique_ptr<std::pair<async::rw_spinlock, audio_segment>>(pairPointer)));
+			m_segments.emplace(
+				std::make_pair(id, std::unique_ptr<std::pair<async::rw_spinlock, audio_segment>>(pairPointer))
+			);
 		}
 
 		return {id};
@@ -206,12 +218,16 @@ namespace rythe::audio
 			async::readonly_guard guard(m_segmentsLock);
 			// check if segment has been loaded before
 			if (m_segments.count(id))
+			{
 				return;
+			}
 		}
 
 		auto* pairPointer = new std::pair<async::rw_spinlock, audio_segment>();
 		pairPointer->second = *segment;
-		m_segments.emplace(std::make_pair(id, std::unique_ptr<std::pair<async::rw_spinlock, audio_segment>>(pairPointer)));
+		m_segments.emplace(
+			std::make_pair(id, std::unique_ptr<std::pair<async::rw_spinlock, audio_segment>>(pairPointer))
+		);
 	}
 
 	audio_segment_handle AudioSegmentCache::getAudioSegment(const std::string& name)
@@ -221,7 +237,9 @@ namespace rythe::audio
 			async::readonly_guard guard(m_segmentsLock);
 			// check if segment has been loaded before
 			if (m_segments.count(id))
+			{
 				return {id};
+			}
 		}
 		return invalid_audio_segment_handle;
 	}
@@ -241,6 +259,7 @@ namespace rythe::audio
 		return std::make_pair(std::ref(lock), std::ref(segment));
 	}
 
-	std::unordered_map<id_type, std::unique_ptr<std::pair<async::rw_spinlock, audio_segment>>> AudioSegmentCache::m_segments;
+	std::unordered_map<id_type, std::unique_ptr<std::pair<async::rw_spinlock, audio_segment>>>
+		AudioSegmentCache::m_segments;
 	async::rw_spinlock AudioSegmentCache::m_segmentsLock;
 } // namespace rythe::audio

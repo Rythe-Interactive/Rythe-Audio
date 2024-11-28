@@ -18,7 +18,10 @@ namespace rythe::audio
 
 		audio_segment() = default;
 
-		audio_segment(rsl::byte* data, ALuint bufferId, rsl::size_type samples, int channels, int sampleRate, int layer, int avg_bitRate);
+		audio_segment(
+			rsl::byte* data, ALuint bufferId, rsl::size_type samples, int channels, int sampleRate, int layer,
+			int avg_bitRate
+		);
 
 		audio_segment(const audio_segment& other);
 
@@ -31,26 +34,14 @@ namespace rythe::audio
 		~audio_segment();
 
 		// Read-Write
-		rsl::byte* getData()
-		{
-			return m_data;
-		}
+		rsl::byte* getData() { return m_data; }
 
 		// Read only
-		const rsl::byte* getData() const
-		{
-			return m_data;
-		}
+		const rsl::byte* getData() const { return m_data; }
 
-		void setNextAudioSegment(audio_segment& next)
-		{
-			m_next = &next;
-		}
+		void setNextAudioSegment(audio_segment& next) { m_next = &next; }
 
-		audio_segment* getNextAudioSegment()
-		{
-			return m_next;
-		}
+		audio_segment* getNextAudioSegment() { return m_next; }
 
 		audio_segment* clearNextAudioSegment()
 		{
@@ -72,7 +63,8 @@ namespace rythe::audio
 	/**
 	 * @brief Import settings for audio files
 	 * @brief Settings:
-	 * @brief force_mono: when enabled the loaded audio file will combine channels to make the audio file mono, which allows for spatial audio
+	 * @brief force_mono: when enabled the loaded audio file will combine channels to make the audio file mono, which
+	 * allows for spatial audio
 	 * @brief split_channels: when enabled the channels of the audio file will be loaded into seperate audio segments
 	 */
 	struct audio_import_settings
@@ -102,7 +94,10 @@ namespace rythe::audio
 		friend struct audio_segment_handle;
 
 	public:
-		static audio_segment_handle createAudioSegment(const std::string& name, const fs::view& file, audio_import_settings settings = default_audio_import_settings);
+		static audio_segment_handle createAudioSegment(
+			const std::string& name, const fs::view& file,
+			audio_import_settings settings = default_audio_import_settings
+		);
 		static audio_segment_handle getAudioSegment(const std::string& name);
 		static void unload();
 

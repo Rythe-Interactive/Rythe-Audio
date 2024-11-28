@@ -119,24 +119,12 @@ namespace rythe::audio
 		{
 			switch (attrs[i])
 			{
-				case ALC_FREQUENCY:
-					frequency = attrs[++i];
-					break;
-				case ALC_REFRESH:
-					refresh = attrs[++i];
-					break;
-				case ALC_SYNC:
-					sync = attrs[++i];
-					break;
-				case ALC_MONO_SOURCES:
-					monoSources = attrs[++i];
-					break;
-				case ALC_STEREO_SOURCES:
-					stereoSources = attrs[++i];
-					break;
-				case ALC_MAX_AUXILIARY_SENDS:
-					maxAux = attrs[++i];
-					break;
+				case ALC_FREQUENCY: frequency = attrs[++i]; break;
+				case ALC_REFRESH: refresh = attrs[++i]; break;
+				case ALC_SYNC: sync = attrs[++i]; break;
+				case ALC_MONO_SOURCES: monoSources = attrs[++i]; break;
+				case ALC_STEREO_SOURCES: stereoSources = attrs[++i]; break;
+				case ALC_MAX_AUXILIARY_SENDS: maxAux = attrs[++i]; break;
 			}
 		}
 
@@ -160,7 +148,8 @@ namespace rythe::audio
 			"\tALC Extensions:\n"
 			"\t\t{}\n"
 			"\t----------------------------------\n",
-			vendor, version, renderer, srate, frequency, refresh, sync, monoSources, stereoSources, maxAux, openALExtensions, ALCExtensions
+			vendor, version, renderer, srate, frequency, refresh, sync, monoSources, stereoSources, maxAux,
+			openALExtensions, ALCExtensions
 		);
 	}
 
@@ -177,7 +166,9 @@ namespace rythe::audio
 			audio_source& source = sourceHandle.get();
 
 			if (source.m_sourceId == audio_source::invalid_source_id)
+			{
 				continue;
+			}
 
 			const position& p = entity.get_component<position>();
 			position& previousP = m_sourcePositions.at(sourceHandle);
@@ -324,12 +315,16 @@ namespace rythe::audio
 		const audio_source& a = handle.get();
 
 		if (a.m_sourceId == audio_source::invalid_source_id)
+		{
 			return;
+		}
 
 		m_sourcePositions.erase(handle);
 
 		if (a.m_playState != audio_source::playstate::stopped)
+		{
 			alSourceStop(a.m_sourceId);
+		}
 
 		alSourcei(a.m_sourceId, AL_BUFFER, NULL);
 		alDeleteSources(1, &a.m_sourceId); // Clear source

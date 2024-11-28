@@ -8,7 +8,8 @@
 
 namespace rythe::audio
 {
-	common::result<audio_segment, fs_error> mp3_audio_loader::load(const fs::basic_resource& resource, audio_import_settings&& settings)
+	common::result<audio_segment, fs_error>
+	mp3_audio_loader::load(const fs::basic_resource& resource, audio_import_settings&& settings)
 	{
 
 		mp3dec_map_info_t map_info;
@@ -32,7 +33,9 @@ namespace rythe::audio
 
 		if (settings.channel_processing == audio_import_settings::channel_processing_setting::force_mono)
 		{
-			audioData = detail::convertToMono(reinterpret_cast<rsl::byte*>(fileInfo.buffer), dataSize, dataSize, channels, 16);
+			audioData = internal::convertToMono(
+				reinterpret_cast<rsl::byte*>(fileInfo.buffer), dataSize, dataSize, channels, 16
+			);
 			samples /= channels;
 		}
 		else
@@ -44,12 +47,7 @@ namespace rythe::audio
 
 		audio_segment as(
 			audioData, // fileInfo.samples is int16, therefore rsl::byte requires twice as much
-			0,
-			samples,
-			channels,
-			fileInfo.hz,
-			fileInfo.layer,
-			fileInfo.avg_bitrate_kbps
+			0, samples, channels, fileInfo.hz, fileInfo.layer, fileInfo.avg_bitrate_kbps
 		);
 
 		std::lock_guard guard(AudioSystem::contextLock);
@@ -59,7 +57,9 @@ namespace rythe::audio
 
 		ALenum format = AL_FORMAT_MONO16;
 		if (as.channels == 2)
+		{
 			format = AL_FORMAT_STEREO16;
+		}
 
 		alBufferData(as.audioBufferId, format, as.getData(), dataSize, as.sampleRate);
 
@@ -68,7 +68,8 @@ namespace rythe::audio
 		return as;
 	}
 
-	common::result<audio_segment, fs_error> wav_audio_loader::load(const fs::basic_resource& resource, audio_import_settings&& settings)
+	common::result<audio_segment, fs_error>
+	wav_audio_loader::load(const fs::basic_resource& resource, audio_import_settings&& settings)
 	{
 		RIFF_Header header;
 		WAVE_Data waveData;
@@ -77,40 +78,44 @@ namespace rythe::audio
 
 		// Check if the loaded file has the correct header
 
-		if (header.chunckId[0] != 'R' ||
-			header.chunckId[1] != 'I' ||
-			header.chunckId[2] != 'F' ||
+		if (header.chunckId[0] != 'R' || header.chunckId[1] != 'I' || header.chunckId[2] != 'F' ||
 			header.chunckId[3] != 'F')
 		{
-			log::error("Found WAV header: '{}', exptected: 'RIFF'", (char)header.chunckId[0], (char)header.chunckId[1], (char)header.chunckId[2], (char)header.chunckId[3]);
+			log::error(
+				"Found WAV header: '{}', exptected: 'RIFF'", (char)header.chunckId[0], (char)header.chunckId[1],
+				(char)header.chunckId[2], (char)header.chunckId[3]
+			);
 			return rythe_fs_error("WAV File invalid header, exptected RIFF");
 		}
 
-		if (header.format[0] != 'W' ||
-			header.format[1] != 'A' ||
-			header.format[2] != 'V' ||
-			header.format[3] != 'E')
+		if (header.format[0] != 'W' || header.format[1] != 'A' || header.format[2] != 'V' || header.format[3] != 'E')
 		{
-			log::error("Found WAV format: '{}{}{}{}', exptected: 'WAVE'", (char)header.format[0], (char)header.format[1], (char)header.format[2], (char)header.format[3]);
+			log::error(
+				"Found WAV format: '{}{}{}{}', exptected: 'WAVE'", (char)header.format[0], (char)header.format[1],
+				(char)header.format[2], (char)header.format[3]
+			);
 			return rythe_fs_error("Loaded File is not of type WAV");
 		}
 
-		if (header.wave_format.subChunckId[0] != 'f' ||
-			header.wave_format.subChunckId[1] != 'm' ||
-			header.wave_format.subChunckId[2] != 't' ||
-			header.wave_format.subChunckId[3] != ' ')
+		if (header.wave_format.subChunckId[0] != 'f' || header.wave_format.subChunckId[1] != 'm' ||
+			header.wave_format.subChunckId[2] != 't' || header.wave_format.subChunckId[3] != ' ')
 		{
-			log::error("Found WAV format sub chunck ID: '{}{}{}{}', exptected: 'fmt '", (char)header.wave_format.subChunckId[0], (char)header.wave_format.subChunckId[1], (char)header.wave_format.subChunckId[2], (char)header.wave_format.subChunckId[3]);
+			log::error(
+				"Found WAV format sub chunck ID: '{}{}{}{}', exptected: 'fmt '",
+				(char)header.wave_format.subChunckId[0], (char)header.wave_format.subChunckId[1],
+				(char)header.wave_format.subChunckId[2], (char)header.wave_format.subChunckId[3]
+			);
 			return rythe_fs_error("WAV File sub chunck id was not (fmt )");
 		}
 
 		memcpy(&waveData, resource.data() + sizeof(header), sizeof(waveData));
-		if (waveData.subChunckId[0] != 'd' ||
-			waveData.subChunckId[1] != 'a' ||
-			waveData.subChunckId[2] != 't' ||
+		if (waveData.subChunckId[0] != 'd' || waveData.subChunckId[1] != 'a' || waveData.subChunckId[2] != 't' ||
 			waveData.subChunckId[3] != 'a')
 		{
-			log::error("Found WAV data sub chunck ID: '{}{}{}{}', exptected: 'data'", (char)waveData.subChunckId[0], (char)waveData.subChunckId[1], (char)waveData.subChunckId[2], (char)waveData.subChunckId[3]);
+			log::error(
+				"Found WAV data sub chunck ID: '{}{}{}{}', exptected: 'data'", (char)waveData.subChunckId[0],
+				(char)waveData.subChunckId[1], (char)waveData.subChunckId[2], (char)waveData.subChunckId[3]
+			);
 			return rythe_fs_error("WAV File sample data does not start with word (data)");
 		}
 
@@ -127,7 +132,9 @@ namespace rythe::audio
 
 		if (settings.channel_processing == audio_import_settings::channel_processing_setting::split_channels)
 		{
-			detail::channel_data channelData = detail::extractChannels(resource.data() + metaSize, sampleDataSize, channels, header.wave_format.bitsPerSample);
+			internal::channel_data channelData = internal::extractChannels(
+				resource.data() + metaSize, sampleDataSize, channels, header.wave_format.bitsPerSample
+			);
 
 			sampleDataSize /= channels;
 
@@ -138,13 +145,11 @@ namespace rythe::audio
 			int samplesPerChannel = sampleDataSize / (header.wave_format.bitsPerSample / 8);
 
 			as = audio_segment(
-				audioData,
-				0,
+				audioData, 0,
 				samplesPerChannel, // Sample count, unknown for wav
-				1,
-				(int)header.wave_format.sampleRate,
-				-1, // Layer, does not exist in wav
-				-1  // avg_biterate_kbps, unknown for wav
+				1, (int)header.wave_format.sampleRate,
+				-1,                // Layer, does not exist in wav
+				-1                 // avg_biterate_kbps, unknown for wav
 			);
 
 			audio_segment* previous = &as;
@@ -156,17 +161,13 @@ namespace rythe::audio
 					rsl::byte* data = new rsl::byte[sampleDataSize];
 					memmove(data, channelData.dataPerChannel[i].data(), sampleDataSize);
 
-					audio_segment* channel_segment = new audio_segment(
-						data,
-						0,
-						samplesPerChannel,
-						1,
-						(int)header.wave_format.sampleRate,
-						-1,
-						-1
-					);
+					audio_segment* channel_segment =
+						new audio_segment(data, 0, samplesPerChannel, 1, (int)header.wave_format.sampleRate, -1, -1);
 
-					detail::createAndBufferAudioData(&(channel_segment->audioBufferId), channel_segment->channels, header.wave_format.bitsPerSample, channel_segment->getData(), sampleDataSize, channel_segment->sampleRate);
+					internal::createAndBufferAudioData(
+						&(channel_segment->audioBufferId), channel_segment->channels, header.wave_format.bitsPerSample,
+						channel_segment->getData(), sampleDataSize, channel_segment->sampleRate
+					);
 					log::debug("Setting next audio segment");
 					previous->setNextAudioSegment(*channel_segment);
 					previous = channel_segment;
@@ -175,16 +176,16 @@ namespace rythe::audio
 		}
 		else if (settings.channel_processing == audio_import_settings::channel_processing_setting::force_mono)
 		{
-			audioData = detail::convertToMono(resource.data() + metaSize, sampleDataSize, sampleDataSize, channels, header.wave_format.bitsPerSample);
+			audioData = internal::convertToMono(
+				resource.data() + metaSize, sampleDataSize, sampleDataSize, channels, header.wave_format.bitsPerSample
+			);
 
 			as = audio_segment(
-				audioData,
-				0,
+				audioData, 0,
 				sampleDataSize / (header.wave_format.bitsPerSample / 8), // Sample count, unknown for wav
-				channels,
-				(int)header.wave_format.sampleRate,
-				-1, // Layer, does not exist in wav
-				-1  // avg_biterate_kbps, unknown for wav
+				channels, (int)header.wave_format.sampleRate,
+				-1,                                                      // Layer, does not exist in wav
+				-1                                                       // avg_biterate_kbps, unknown for wav
 			);
 		}
 		else
@@ -193,24 +194,26 @@ namespace rythe::audio
 			memcpy(audioData, resource.data() + metaSize, sampleDataSize);
 
 			as = audio_segment(
-				audioData,
-				0,
+				audioData, 0,
 				sampleDataSize / (header.wave_format.bitsPerSample / 8), // Sample count, unknown for wav
-				channels,
-				(int)header.wave_format.sampleRate,
-				-1, // Layer, does not exist in wav
-				-1  // avg_biterate_kbps, unknown for wav
+				channels, (int)header.wave_format.sampleRate,
+				-1,                                                      // Layer, does not exist in wav
+				-1                                                       // avg_biterate_kbps, unknown for wav
 			);
 		}
 
-		detail::createAndBufferAudioData(&as.audioBufferId, as.channels, header.wave_format.bitsPerSample, as.getData(), sampleDataSize, as.sampleRate);
+		internal::createAndBufferAudioData(
+			&as.audioBufferId, as.channels, header.wave_format.bitsPerSample, as.getData(), sampleDataSize,
+			as.sampleRate
+		);
 
 		return as;
 	}
 
-	namespace detail
+	namespace internal
 	{
-		void convertToMono(const rsl::byte* inputData, int dataSize, rsl::byte* monoData, int channels, int bitsPerSample)
+		void
+		convertToMono(const rsl::byte* inputData, int dataSize, rsl::byte* monoData, int channels, int bitsPerSample)
 		{
 			assert_msg("0 was passed for channels", channels != 0);
 			if (channels == 1)
@@ -259,13 +262,13 @@ namespace rythe::audio
 						j += bytesPerSample;
 					}
 					break;
-					default:
-						break;
+					default: break;
 				}
 			}
 		}
 
-		rsl::byte* convertToMono(const rsl::byte* inputData, int dataSize, int& monoSize, int& channels, int bitsPerSample)
+		rsl::byte*
+		convertToMono(const rsl::byte* inputData, int dataSize, int& monoSize, int& channels, int bitsPerSample)
 		{
 			monoSize = dataSize / channels;
 			rsl::byte* monoData = new rsl::byte[monoSize];
@@ -346,8 +349,7 @@ namespace rythe::audio
 					}
 				}
 				break;
-				default:
-					break;
+				default: break;
 			}
 			return channelData;
 		}
@@ -357,43 +359,63 @@ namespace rythe::audio
 			if (channels == 1)
 			{
 				if (bitsPerSample == 8)
+				{
 					return AL_FORMAT_MONO8;
+				}
 				else if (bitsPerSample == 16)
+				{
 					return AL_FORMAT_MONO16;
+				}
 				else if (bitsPerSample == 32)
+				{
 					return AL_FORMAT_MONO_FLOAT32;
+				}
 			}
 			else if (channels == 2)
 			{
 				if (bitsPerSample == 8)
+				{
 					return AL_FORMAT_STEREO8;
+				}
 				else if (bitsPerSample == 16)
+				{
 					return AL_FORMAT_STEREO16;
+				}
 				else if (bitsPerSample == 32)
+				{
 					return AL_FORMAT_STEREO_FLOAT32;
+				}
 			}
 			else if (channels == 4)
 			{
 				if (bitsPerSample == 8)
+				{
 					return AL_FORMAT_QUAD8;
+				}
 				else if (bitsPerSample == 16)
+				{
 					return AL_FORMAT_QUAD16;
+				}
 				else if (bitsPerSample == 32)
+				{
 					return AL_FORMAT_QUAD32;
+				}
 			}
 			return AL_FORMAT_STEREO16;
 		}
 
-		void createAndBufferAudioData(ALuint* bufferId, int channels, int bitsPerSample, rsl::byte* data, int dataSize, int sampleRate)
+		void createAndBufferAudioData(
+			ALuint* bufferId, int channels, int bitsPerSample, rsl::byte* data, int dataSize, int sampleRate
+		)
 		{
 			std::lock_guard guard(AudioSystem::contextLock);
 			alcMakeContextCurrent(AudioSystem::alcContext);
 			// Generate openal buffer
 			alGenBuffers((ALuint)1, bufferId);
 
-			alBufferData(*bufferId, detail::getAudioFormat(channels, bitsPerSample), data, dataSize, sampleRate);
+			alBufferData(*bufferId, internal::getAudioFormat(channels, bitsPerSample), data, dataSize, sampleRate);
 
 			alcMakeContextCurrent(nullptr);
 		}
-	} // namespace detail
+	} // namespace internal
 } // namespace rythe::audio

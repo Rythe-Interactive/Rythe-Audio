@@ -21,7 +21,9 @@ namespace rythe::audio
 	{
 		ALCenum error;
 		while ((error = alGetError()) != AL_NO_ERROR)
+		{
 			rythe::log::warn("ERROR: OpenAl error: {}", error);
+		}
 	}
 
 	/**@class AudioSystem
